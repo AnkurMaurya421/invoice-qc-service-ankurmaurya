@@ -38,7 +38,7 @@ for schema are given below
 
 #### Completeness Rules:
 ##### Mandatory Fields Check
-[invoice_numberinvoice_date
+invoice_numberinvoice_date
 ->seller_name
 ->buyer_name
 ->net_total

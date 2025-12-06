@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Invoice QC Console</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="container">
+    <h1>📄 Invoice QC Console</h1>
+    <p>Upload PDFs or paste JSON to validate invoices.</p>
+
+    <!-- PDF UPLOAD SECTION -->
+    <div class="section">
+        <h2>1. Upload PDF Files</h2>
+        <input type="file" id="pdfInput" multiple accept="application/pdf" />
+        <button onclick="uploadPDFs()">Validate PDFs</button>
+    </div>
+
+    <!-- JSON VALIDATION SECTION -->
+    <div class="section">
+        <h2>2. Paste Raw Invoice JSON</h2>
+        <textarea id="jsonInput" placeholder='[ { "invoice_id": 1, ... } ]'></textarea>
+        <button onclick="validateJSON()">Validate JSON</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="section">
+        <label>
+            <input type="checkbox" id="filterInvalid" onchange="filterResults()" />
+            Show only invalid invoices
+        </label>
+    </div>
+
+    <!-- RESULTS TABLE -->
+    <div class="section">
+        <h2>Validation Results</h2>
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Status</th>
+                    <th>Errors</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
