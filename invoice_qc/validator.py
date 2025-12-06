@@ -203,7 +203,7 @@ def validate_invoices(invoices_json: List[Dict[str, Any]]):
                 "errors": errors
             })
 
-    # ---------------------- DUPLICATE DETECTION ----------------------
+    #DUPLICATE DETECTION
     seen = {}
     for idx, inv in enumerate(invoices_json):
         key = (inv.get("seller_name"), inv.get("invoice_number"), inv.get("invoice_date"))

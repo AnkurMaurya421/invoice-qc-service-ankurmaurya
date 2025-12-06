@@ -1,7 +1,7 @@
 #Import necessary libraries
 import pdfplumber
 import re
-import json
+import os
 
 #Lists of fields for invoice and line items
 invoice_fields=["invoice_number", "reference_number", "invoice_date", "seller_name", "buyer_name", 
@@ -74,9 +74,10 @@ def extract_invoice_data_from_pdf(file_path,invoice_id):
     invoice_data["line_items"] = line_items
     return invoice_data
 
+
 # Function to extract invoice data from all PDF files in a folder by calling the single PDF extraction function
 def extract_invoice_data_from_folder(folder_path):
-    import os
+    
     invoice_data_list = []
     id = 1
 
