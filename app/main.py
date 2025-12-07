@@ -69,7 +69,7 @@ async def extract_and_validate_pdfs(files: List[UploadFile] = File(...)):
     valid_count = 0
     invalid_count = 0
     errors = []
-
+    id=1
     for uploaded in files:
         # Save PDF temporarily
         suffix = os.path.splitext(uploaded.filename)[1]
@@ -78,9 +78,9 @@ async def extract_and_validate_pdfs(files: List[UploadFile] = File(...)):
             tmp_path = tmp.name
 
         # Extract from a single PDF (your function)
-        extracted = extract_invoice_data_from_pdf(tmp_path, invoice_id=uploaded.filename)
+        extracted = extract_invoice_data_from_pdf(tmp_path, invoice_id=id)
         all_extracted.append(extracted)
-
+        id+=1
         # Validate extracted data
         try:
             Invoice(**extracted)
