@@ -101,6 +101,64 @@ Handles EU numeric formats such as:
 | Duplicate invoices flagged           | Prevent duplicate ingestion   |
 
 ## 4. Architecture
+### Extraction Pipeline
+The extraction module reads PDF files using pdfplumber, converts each page to plain text, and applies a set of regex patterns to extract structured fields such as invoice numbers, dates, totals, customer information, and line items.
+Line items are identified as repeating text blocks and parsed individually.
+
+The output is a clean Python dictionary representing one invoice
+### Validation Core
+The validation layer is built using Pydantic models.
+Each field is type-checked, normalized (especially dates and EU-style numbers), and validated using per-field and cross-field rules.
+Business rules enforce consistency:
+
+**net_total = sum(line_totals)**
+
+**gross_total = net_total + tax_amount**
+
+**line_total = quantity × price**
+
+required field checks
+
+duplicate invoice detection
+
+Validation returns structured error messages and an overall pass/fail flag.
+
+### CLI
+The CLI (built with argparse) provides three main commands:
+
+**extract → PDF folder → JSON file**
+
+**validate → JSON file → validation report**
+
+**full-run → extract + validate in a single command**
+
+The CLI produces a summary showing counts of valid/invalid invoices and top error types.
+
+### API
+A **FastAPI** backend exposes three endpoints:
+
+**GET /health** → health check
+
+**POST /validate-json** → validate a list of invoice JSON objects
+
+**POST /extract-and-validate-pdfs** → upload PDFs, extract data, validate them, and return results
+
+**CORS** is enabled so the frontend can call the API directly.
+
+### Frontend
+
+A lightweight HTML/CSS/JavaScript UI that allows users to:
+
+Upload one or more PDFs
+
+Paste JSON directly
+
+Send data to the backend for extraction and validation
+
+View invoice results in a table with status badges
+
+Filter to show only invalid invoices
+
 <img width="536" height="617" alt="image" src="https://github.com/user-attachments/assets/1a95393c-c056-4ff8-b092-090faf8cd81d" />
 
 ## 5. System Flow Diagram
@@ -186,6 +244,14 @@ Badges for valid/invalid
 
 “Show only invalid invoices” filter
 
+## Integration Into a Larger System
+
+This service is designed to plug into broader document-processing pipelines:
+
+API Integration: Upstream services can call `/extract-and-validate-pdfs` or `/validate-json` immediately after parsing documents, receiving structured QC results .
+
+Dashboard Integration: Validation results can be pushed into a database or monitoring tool for operations teams
+
 ## 🤖 11. AI Usage Notes
 
 ### The assignment explicitly allows AI tools.
@@ -193,8 +259,6 @@ Badges for valid/invalid
 Tools Used
 
 ChatGPT
-
-GitHub Copilot (minimal autocomplete)
 
 Used For
 
@@ -234,7 +298,7 @@ Understood every component
 
 Corrected multiple AI mistakes
 
-This demonstrates thoughtful and responsible AI usage, not blind dependence.
+
 
 ## 🧠 12. Assumptions & Limitations
 ### Assumptions
@@ -247,11 +311,8 @@ Currency defaults to EUR unless explicitly extracted
 
 ### Limitations
 
-Regex extraction may fail for OCR-heavy or highly stylized invoices
+Regex extraction may fail for highly stylized invoices
 
-Complex multi-page item tables not fully supported
-
-Duplicate detection is simple (not fuzzy-matching names)
 
 ## 🎉 13. Final Notes
 
