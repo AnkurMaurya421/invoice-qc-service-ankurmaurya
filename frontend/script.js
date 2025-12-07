@@ -1,7 +1,7 @@
 const API_BASE = "http://127.0.0.1:8000";
 let resultsCache = [];  // store all results
 
-// ----------------------
+
 // Validate PDFs
 // ----------------------
 async function uploadPDFs() {
@@ -19,9 +19,8 @@ async function uploadPDFs() {
     render(resultsCache);
 }
 
-// ----------------------
+
 // Validate JSON
-// ----------------------
 async function validateJSON() {
     let raw = document.getElementById("jsonInput").value.trim();
     if (!raw) return alert("Paste JSON first.");
@@ -37,14 +36,11 @@ async function validateJSON() {
     });
 
     const data = await res.json();
-    console.log("API response:", data);
     resultsCache = data.results;
     render(resultsCache);
 }
 
-// ----------------------
 // Render Table
-// ----------------------
 function render(list) {
     const tbody = document.querySelector("#resultsTable tbody");
     tbody.innerHTML = "";
@@ -52,7 +48,7 @@ function render(list) {
     list.forEach(item => {
         const row = `
             <tr>
-                <td>${item.invoice_id ?? "?"}</td>
+                <td>${item.invoice_id ?? item.filename}</td>
                 <td class="${item.valid ? "status-valid" : "status-invalid"}">
                     ${item.valid ? "VALID" : "INVALID"}
                 </td>
@@ -63,9 +59,8 @@ function render(list) {
     });
 }
 
-// ----------------------
-// Filter invalid only
-// ----------------------
+
+// Filter invalid only                 
 function filterResults() {
     const showInvalidOnly = document.getElementById("filterInvalid").checked;
     const filtered = showInvalidOnly ? resultsCache.filter(r => !r.valid) : resultsCache;

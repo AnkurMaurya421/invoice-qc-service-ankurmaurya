@@ -21,16 +21,14 @@ app.add_middleware(
 )
 
 
-# -----------------------------
+
 # Health Check
-# -----------------------------
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-# -----------------------------
+
 # Validate JSON Invoice List
-# -----------------------------
 @app.post("/validate-json")
 def validate_json(invoices: List[dict]):
     result = []
@@ -38,10 +36,10 @@ def validate_json(invoices: List[dict]):
     invalid_count = 0
     errors = []
 
-    for inv in invoices:
-        invoice_id = inv.get("invoice_id", "unknown")
+    for invoice in invoices:
+        invoice_id = invoice.get("invoice_id", "unknown")
         try:
-            Invoice(**inv)
+            Invoice(**invoice)
             result.append({"invoice_id": invoice_id, "valid": True})
             valid_count += 1
         except Exception as e:
@@ -62,9 +60,8 @@ def validate_json(invoices: List[dict]):
         "results": result
     }
 
-# -----------------------------
+
 # Extract AND Validate PDFs
-# -----------------------------
 @app.post("/extract-and-validate-pdfs")
 async def extract_and_validate_pdfs(files: List[UploadFile] = File(...)):
     all_extracted = []
@@ -81,7 +78,7 @@ async def extract_and_validate_pdfs(files: List[UploadFile] = File(...)):
             tmp_path = tmp.name
 
         # Extract from a single PDF (your function)
-        extracted = extract_invoice_data_from_pdf(tmp_path, invoice_id=1)
+        extracted = extract_invoice_data_from_pdf(tmp_path, invoice_id=uploaded.filename)
         all_extracted.append(extracted)
 
         # Validate extracted data

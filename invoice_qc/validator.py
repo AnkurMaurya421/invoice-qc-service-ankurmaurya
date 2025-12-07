@@ -205,8 +205,8 @@ def validate_invoices(invoices_json: List[Dict[str, Any]]):
 
     #DUPLICATE DETECTION
     seen = {}
-    for idx, inv in enumerate(invoices_json):
-        key = (inv.get("seller_name"), inv.get("invoice_number"), inv.get("invoice_date"))
+    for index, invoice in enumerate(invoices_json):
+        key = (invoice.get("seller_name"), invoice.get("invoice_number"), invoice.get("invoice_date"))
 
         if None in key:
             continue
@@ -216,21 +216,21 @@ def validate_invoices(invoices_json: List[Dict[str, Any]]):
             error_counter[msg] += 1
 
             # previous invoice
-            prev_idx = seen[key]
-            results[prev_idx]["is_valid"] = False
-            if msg not in results[prev_idx]["errors"]:
-                results[prev_idx]["errors"].append(msg)
+            prev_index = seen[key]
+            results[prev_index]["is_valid"] = False
+            if msg not in results[prev_index]["errors"]:
+                results[prev_index]["errors"].append(msg)
 
             # current invoice
-            results[idx]["is_valid"] = False
-            results[idx]["errors"].append(msg)
+            results[index]["is_valid"] = False
+            results[index]["errors"].append(msg)
 
         else:
-            seen[key] = idx
+            seen[key] = index
 
-    # ---------------------- SUMMARY OBJECT ----------------------
+    #SUMMARY OBJECT
     total = len(results)
-    valid = sum(r["is_valid"] for r in results)
+    valid = sum(result["is_valid"] for result in results)
     invalid = total - valid
 
     summary = {

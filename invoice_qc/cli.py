@@ -8,10 +8,7 @@ from invoice_qc.validator import Invoice
 
 
 
-# ----------------------------
 # Utility Functions
-# ----------------------------
-
 def save_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
@@ -40,16 +37,13 @@ def print_summary(valid_count, invalid_count, errors_list=None):
             print(f"  {err}: {cnt}")
 
 
-# ----------------------------
 # Extract
-# ----------------------------
 
 def run_extract(pdf_dir, output_json):
     extracted = extract_invoice_data_from_folder(pdf_dir)
 
 
-    # Your extractor returns a list of raw invoice dicts
-    # We store them as-is, no wrapper
+    # extractor returns a list of raw invoice dicts
     result = extracted
 
     save_json(output_json, result)
@@ -57,9 +51,8 @@ def run_extract(pdf_dir, output_json):
     print(f"Total invoices processed: {len(result)}")
 
 
-# ----------------------------
+
 # Validate
-# ----------------------------
 
 def run_validate(input_json, report_path):
     invoices = load_json(input_json)
@@ -69,15 +62,15 @@ def run_validate(input_json, report_path):
     valid_count = 0
     invalid_count = 0
 
-    for inv in invoices:
-        filename = f"invoice_{inv.get('invoice_id')}"  # synthetic filename
+    for invoice in invoices:
+        filename = f"invoice_{invoice.get('invoice_id')}"  # synthetic filename
         try:
-            Invoice(**inv)
-            report.append({"invoice_id": inv.get("invoice_id"), "valid": True})
+            Invoice(**invoice)
+            report.append({"invoice_id": invoice.get("invoice_id"), "valid": True})
             valid_count += 1
         except Exception as e:
             msg = str(e)
-            report.append({"invoice_id": inv.get("invoice_id"), "valid": False, "error": msg})
+            report.append({"invoice_id": invoice.get("invoice_id"), "valid": False, "error": msg})
             invalid_errors.append(msg)
             invalid_count += 1
 
@@ -86,42 +79,68 @@ def run_validate(input_json, report_path):
 
     if invalid_count > 0:
         sys.exit(1)
-# ----------------------------
-# Full run: Extract + Validate
-# ----------------------------
 
+
+# Full run: Extract + Validate
 def run_full(pdf_dir, report_path):
     temp_path = "_temp_extract.json"
 
     run_extract(pdf_dir, temp_path)
     run_validate(temp_path, report_path)
 
-    # Cleanup
+    # delete the temporary file
     Path(temp_path).unlink(missing_ok=True)
 
 
-# ----------------------------
-# CLI Entrypoint
-# ----------------------------
 
+# CLI Entrypoint
 def main():
     parser = argparse.ArgumentParser(description="Invoice QC CLI Tool")
     sub = parser.add_subparsers(dest="command")
 
+    
     # extract
-    cmd_extract = sub.add_parser("extract")
-    cmd_extract.add_argument("--pdf-dir", required=True)
-    cmd_extract.add_argument("--output", required=True)
+    cmd_extract = sub.add_parser(
+        "extract",
+        help="Extract structured invoice data from PDFs"
+    )
+    cmd_extract.add_argument(
+        "--pdf-dir", required=True,
+        help="Directory containing invoice PDF files"
+    )
+    cmd_extract.add_argument(
+        "--output", required=True,
+        help="Path to save the extracted JSON data"
+    )
 
-    # validate
-    cmd_validate = sub.add_parser("validate")
-    cmd_validate.add_argument("--input", required=True)
-    cmd_validate.add_argument("--report", required=True)
+     # validate
+    cmd_validate = sub.add_parser(
+        "validate",
+        help="Validate extracted invoice data"
+    )
+    cmd_validate.add_argument(
+        "--input", required=True,
+        help="JSON file containing extracted invoice data"
+    )
+    cmd_validate.add_argument(
+        "--report", required=True,
+        help="Path to save validation report"
+    )
 
     # full-run
-    cmd_full = sub.add_parser("full-run")
-    cmd_full.add_argument("--pdf-dir", required=True)
-    cmd_full.add_argument("--report", required=True)
+    cmd_full = sub.add_parser(
+        "full-run",
+        help="Extract + validate in one step"
+    )
+    cmd_full.add_argument(
+        "--pdf-dir", required=True,
+        help="Directory containing invoice PDF files"
+    )
+    cmd_full.add_argument(
+        "--report", required=True,
+        help="Path to save validation report"
+    )
+
 
     args = parser.parse_args()
 
@@ -140,3 +159,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# Extract PDFs
+# python -m invoice_qc.cli extract --pdf-dir samples --output extracted.json
+# Validate a JSON File
+# python -m invoice_qc.cli validate --input extracted.json --report report.json
+# Full Run (Extract + Validate)
+# python -m invoice_qc.cli full-run --pdf-dir samples --report report.json
