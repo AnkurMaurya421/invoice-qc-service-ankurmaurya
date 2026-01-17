@@ -12,7 +12,7 @@ Expose a FastAPI backend
 
 Provide a small internal Invoice QC Console UI
 
-This project fulfills all required parts (A–D) and the bonus (Part E).
+
 
 
 ## 1. What I Built
